@@ -22,7 +22,7 @@
     private async Task<byte[]> MakeImage()
     {
 
-        var fontBytes = await GetFont("fonts/arial.ttf");
+        var fontBytes = await GetFont("fonts/OpenSans-Regular.ttf");
 
         using var fontStream = new MemoryStream(fontBytes);
 
@@ -35,7 +35,7 @@
 
 
 
-        var fontFamily = collection.Get("Arial");
+        var fontFamily = collection.Get("Open Sans");
 
         Font font = fontFamily.CreateFont(12, FontStyle.Regular);
 
