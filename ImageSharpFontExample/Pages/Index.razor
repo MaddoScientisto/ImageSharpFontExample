@@ -1,0 +1,56 @@
+﻿@page "/"
+@using SixLabors.Fonts
+@using SixLabors.ImageSharp
+@using SixLabors.ImageSharp.Drawing.Processing;
+@using SixLabors.ImageSharp.PixelFormats;
+@using SixLabors.ImageSharp.Processing;
+
+<button class="btn btn-primary" @onclick="IncrementCount">Click me</button>
+<img src="@imageSource" style="max-width: 100%; max-height: 90vh; display: block; object-fit: scale-down;" />
+
+@code {
+    [Inject] System.Net.Http.HttpClient _httpClient { get; set; }
+    string imageSource;
+
+    private async Task IncrementCount()
+    {
+        var bytes = await MakeImage();
+        string base64String = Convert.ToBase64String(bytes);
+        imageSource = $"data:image/png;base64,{base64String}";
+    }
+
+    private async Task<byte[]> MakeImage()
+    {
+
+        var fontBytes = await GetFont("fonts/arial.ttf");
+
+        using var fontStream = new MemoryStream(fontBytes);
+
+        using Image image = new Image<Rgba32>(400, 400);
+        image.Mutate(x => x.Fill(Color.White));
+
+        FontCollection collection = new();
+        //collection.AddSystemFonts();
+        collection.Add(fontStream);
+
+
+
+        var fontFamily = collection.Get("Arial");
+
+        Font font = fontFamily.CreateFont(12, FontStyle.Regular);
+
+        image.Mutate(x => x.DrawText("Test", font, Color.Black, new PointF(1, 1)));
+
+        using var stream = new MemoryStream();
+
+        await image.SaveAsPngAsync(stream);
+
+        return stream.ToArray();
+    }
+
+    public async Task<Byte[]> GetFont(string path)
+    {
+        return await _httpClient.GetByteArrayAsync(path);
+
+    }
+}
